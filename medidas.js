@@ -258,6 +258,9 @@ async function arrancar() {
   rellenarPastas();
   const guardado = leerGuardado();
   if (pastas.some((p) => String(p.id) === String(guardado.pasta))) $("#pasta").value = guardado.pasta;
+  // Viene de la ficha de una pasta (la lupa de Mis creaciones)
+  const pedida = new URLSearchParams(location.search).get("pasta");
+  if (pastas.some((p) => String(p.id) === pedida)) $("#pasta").value = pedida;
   if (guardado.modo) document.querySelector(`input[name="modo"][value="${guardado.modo}"]`).checked = true;
   for (const c of CAMPOS) if (guardado[c]) $(`#${c}`).value = guardado[c];
   rellenarTemperaturas(pastaElegida(), guardado.temperatura);

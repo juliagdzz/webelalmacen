@@ -1,4 +1,102 @@
 .creaciones h1 { margin-bottom: 0.25rem; }
+
+/* Título con la lupa al lado */
+.titulo-creaciones { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.boton-lupa, .boton-lupa:hover {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 2.9rem;
+  height: 2.9rem;
+  padding: 0;
+  border-radius: 50%;
+  background: white;
+  color: var(--verde);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.12), inset 0 0 0 2px var(--verde);
+}
+.boton-lupa[aria-expanded="true"] { background: var(--verde); color: var(--crema); }
+.boton-lupa svg { width: 1.4rem; height: 1.4rem; }
+
+/* El buscador */
+.buscador-catalogo[hidden], .resultados-catalogo [hidden] { display: none; }
+.buscador-catalogo { margin: 1rem 0 1.5rem; }
+.campo-busqueda {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.35rem 0.25rem 0.9rem;
+  border: 2px solid var(--verde);
+  border-radius: 999px;
+  background: white;
+}
+.campo-busqueda > svg { flex: none; width: 1.2rem; height: 1.2rem; color: var(--verde); }
+.campo-busqueda input {
+  flex: 1;
+  min-width: 0;
+  padding: 0.5rem 0;
+  border: 0;
+  outline: none;
+  background: none;
+  color: var(--tinta);
+  font: inherit;
+  font-size: 1rem; /* 16px: sin zoom en iPhone */
+}
+.campo-busqueda input::-webkit-search-cancel-button { display: none; }
+.cerrar-buscador, .cerrar-buscador:hover { flex: none; width: 2.2rem; height: 2.2rem; padding: 0; border-radius: 50%; background: #f3e9d8; color: var(--verde); font-size: 0.95rem; }
+.estado-busqueda { margin: 0.5rem 0.25rem 0; font-size: 0.88rem; color: #6b5a4a; }
+.estado-busqueda:empty { display: none; }
+
+.grupo-resultados { margin-top: 1rem; }
+.grupo-resultados h2 { margin: 0 0 0.4rem; font-size: 1.05rem; color: var(--terracota-oscuro); }
+.grupo-resultados h2::after { display: none; }
+.grupo-resultados h2 small { font-family: 'DM Sans', sans-serif; font-weight: 400; font-size: 0.85rem; color: #6b5a4a; }
+.grupo-resultados ul { display: grid; gap: 0.35rem; margin: 0; padding: 0; list-style: none; }
+.resultado, .resultado:hover {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.45rem 0.75rem 0.45rem 0.45rem;
+  border-radius: 12px;
+  background: white;
+  color: var(--tinta);
+  text-align: left;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.08);
+}
+.resultado:hover { box-shadow: 0 2px 6px rgb(0 0 0 / 0.14); }
+.resultado img { flex: none; width: 2.6rem; height: 2.6rem; border-radius: 8px; object-fit: cover; background: #f3e9d8; }
+.resultado .sello-marca { flex: none; width: 2.6rem; height: 2.6rem; font-size: 0.95rem; }
+.resultado > span { display: grid; min-width: 0; line-height: 1.3; }
+.resultado strong { font-weight: 600; overflow-wrap: anywhere; }
+.resultado small { color: var(--verde); font-size: 0.82rem; overflow-wrap: anywhere; }
+.grupo-resultados .mas { margin: 0.4rem 0.25rem 0; font-size: 0.85rem; color: #6b5a4a; }
+
+/* Ficha de un esmalte o una pasta */
+.ficha-catalogo {
+  width: min(28rem, calc(100% - 2rem));
+  max-height: calc(100dvh - 3rem);
+  padding: 1.25rem;
+  border: 0;
+  border-radius: 18px;
+  background: var(--fondo);
+  color: var(--tinta);
+  box-shadow: 0 10px 40px rgb(0 0 0 / 0.3);
+}
+.ficha-catalogo::backdrop { background: rgb(42 26 26 / 0.5); }
+.cerrar-ficha, .cerrar-ficha:hover { position: absolute; top: 0.6rem; right: 0.6rem; width: 2.2rem; height: 2.2rem; padding: 0; border-radius: 50%; background: white; color: var(--verde); }
+.ficha-catalogo h2 { margin: 0.25rem 2.5rem 0.5rem 0; font-size: 1.4rem; color: var(--granate); }
+.ficha-catalogo h2::after { display: none; }
+.muestra-ficha { display: block; width: 100%; max-height: 16rem; object-fit: contain; border-radius: 12px; background: white; margin-top: 2.2rem; }
+.marca-ficha { display: flex; align-items: center; gap: 0.5rem; margin: 0; font-weight: 600; color: var(--verde); }
+.datos-ficha { display: grid; grid-template-columns: auto 1fr; gap: 0.3rem 1rem; margin: 0.75rem 0; }
+.datos-ficha dt { color: var(--terracota-oscuro); font-weight: 600; font-size: 0.9rem; }
+.datos-ficha dd { margin: 0; overflow-wrap: anywhere; }
+.nota-plomo { padding: 0.5rem 0.75rem; border-left: 4px solid var(--granate); border-radius: 8px; background: #f3e3e3; color: var(--granate); font-size: 0.9rem; }
+.acciones-ficha { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; }
+.contenedor .acciones-ficha a.boton, .acciones-ficha a.boton { color: var(--crema); }
+.acciones-ficha a.boton.secundario { color: var(--oliva-oscuro); }
+.acciones-ficha a.boton.secundario:hover { color: var(--crema); }
+
 .creaciones .entradilla { margin-top: 0; }
 
 .opciones-creaciones {

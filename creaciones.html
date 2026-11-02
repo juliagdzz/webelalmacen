@@ -27,8 +27,22 @@
   </header>
 
   <main class="contenedor creaciones">
-    <h1>Mis creaciones</h1>
+    <div class="titulo-creaciones">
+      <h1>Mis creaciones</h1>
+      <button type="button" id="abrir-buscador" class="boton-lupa" aria-label="Buscar esmaltes y pastas" aria-expanded="false" aria-controls="buscador"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6"/><path d="m15 15 5 5"/></svg></button>
+    </div>
     <p class="entradilla">Tu rincón del taller: guarda ideas, apunta tus piezas y esmaltes y calcula medidas.</p>
+
+    <!-- La lupa: esmaltes y pastas de los catálogos -->
+    <section id="buscador" class="buscador-catalogo" hidden>
+      <div class="campo-busqueda">
+        <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6"/><path d="m15 15 5 5"/></svg>
+        <input id="buscar-catalogo" type="search" autocomplete="off" enterkeyhint="search" placeholder="Celadón, 5546, PRAI, porcelana…" aria-label="Busca un esmalte o una pasta">
+        <button type="button" id="cerrar-buscador" class="cerrar-buscador" aria-label="Cerrar el buscador">✕</button>
+      </div>
+      <p id="estado-busqueda" class="estado-busqueda">Busca entre los esmaltes de Prodesco y Tecniglaze y las pastas de SIO-2, Vicar, La Bisbal…</p>
+      <div id="resultados-catalogo" class="resultados-catalogo" aria-live="polite"></div>
+    </section>
 
     <!-- Solo como invitado: con cuenta, todo eso está en tu cuenta (foto de la esquina) -->
     <div id="cuenta" class="cuenta-barra invitado" hidden>
@@ -77,10 +91,17 @@
     </a>
   </main>
 
+  <dialog id="ficha-catalogo" class="ficha-catalogo" aria-labelledby="titulo-ficha-catalogo">
+    <button type="button" class="cerrar-ficha" aria-label="Cerrar">✕</button>
+    <div id="contenido-catalogo"></div>
+  </dialog>
+
   <script src="vendor/supabase-2.49.4.js"></script>
   <script src="nube-config.js"></script>
   <script src="nube.js"></script>
   <script src="creaciones.js"></script>
+  <script src="marcas.js"></script>
+  <script src="buscador-catalogo.js"></script>
   <script src="cabecera.js"></script>
 </body>
 </html>
