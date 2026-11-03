@@ -17,16 +17,24 @@ const FILTROS = { pendientes: "Pendientes", ...ESTADOS, todos: "Todos" };
 const CERRADOS = ["entregado", "descartado"];
 
 let encargos = [];
-let filtro = "pendientes";
 let urls = [];
 
 let temporizadorAviso;
-function avisar(texto) {
+// avisar("Hecho", { texto: "Deshacer", alPulsar }) pone un botón en el aviso
+function avisar(texto, accion) {
   const el = $("#aviso");
-  el.textContent = texto;
+  el.replaceChildren(texto);
+  el.classList.toggle("con-accion", Boolean(accion));
+  if (accion) {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.textContent = accion.texto;
+    b.addEventListener("click", () => { el.classList.remove("visible"); accion.alPulsar(); });
+    el.append(b);
+  }
   el.classList.add("visible");
   clearTimeout(temporizadorAviso);
-  temporizadorAviso = setTimeout(() => el.classList.remove("visible"), 2500);
+  temporizadorAviso = setTimeout(() => el.classList.remove("visible"), accion ? 5000 : 2500);
 }
 
 // Crea un elemento: h("button", { class: "x", onclick }, "texto", hijo…)
@@ -52,19 +60,6 @@ function haceCuanto(iso) {
   return fecha(iso);
 }
 
-// ---------- Lista ----------
-
-function pintarFiltros() {
-  $("#filtros").replaceChildren(...Object.entries(FILTROS).map(([clave, nombre]) => {
-    const cuantos = clave === "todos" ? encargos.length
-      : clave === "pendientes" ? encargos.filter((e) => !CERRADOS.includes(e.estado)).length
-      : encargos.filter((e) => e.estado === clave).length;
-    if (!cuantos && !["pendientes", "todos"].includes(clave)) return null;
-    return h("button", { type: "button", role: "tab", class: "filtro", "aria-selected": String(filtro === clave),
-      onclick: () => { filtro = clave; pintar(); } }, `${nombre} `, h("span", { class: "cuantos" }, String(cuantos)));
-  }).filter(Boolean));
-}
-
 // Cómo prefiere que le contesten, con su icono: «Prefiere WhatsApp» / «Prefiere correo»
 const ICONOS_CONTACTO = {
   whatsapp: '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 19.5l1.2-3.6A7.8 7.8 0 1 1 8.6 18.4z"/><path d="M9.3 9.2c.2 1.9 1.8 3.7 3.8 4.4l1.1-1.1 1.7.8-.4 1.4c-3.4.2-6.6-2.9-6.6-6.3l1.4-.4.8 1.7z"/></svg>',
@@ -78,19 +73,175 @@ function preferencia(x, grande = false) {
   return el;
 }
 
+// ---------- Tablero (kanban): una columna por estado ----------
+
+const FLECHA = (d) => `<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="${d}"/></svg>`;
+const IZQUIERDA = FLECHA("M14.5 6 8.5 12l6 6");
+const DERECHA = FLECHA("m9.5 6 6 6-6 6");
+const COLUMNAS = Object.keys(ESTADOS);
+
 function pintar() {
-  pintarFiltros();
-  const visibles = encargos.filter((e) => filtro === "todos" || (filtro === "pendientes" ? !CERRADOS.includes(e.estado) : e.estado === filtro));
-  $("#lista-encargos").replaceChildren(...(visibles.length ? visibles.map((e) =>
-    h("button", { type: "button", class: `tarjeta-encargo estado-${e.estado}${sinVer(e) ? " sin-ver" : ""}`, onclick: () => abrir(e) },
+  const tablero = $("#tablero-encargos");
+  const scroll = tablero.scrollLeft;
+  $("#columnas-mapa").replaceChildren(...COLUMNAS.map((estado) =>
+    h("button", { type: "button", class: "filtro", onclick: () => $(`.columna-encargos[data-estado="${estado}"]`).scrollIntoView({ inline: "start", block: "nearest", behavior: "smooth" }) },
+      `${ESTADOS[estado]} `, h("span", { class: "cuantos" }, String(encargos.filter((e) => e.estado === estado).length)))));
+  tablero.replaceChildren(...COLUMNAS.map((estado) => {
+    const suyos = encargos.filter((e) => e.estado === estado);
+    return h("section", { class: `columna-encargos estado-${estado}${CERRADOS.includes(estado) ? " cerrada" : ""}`, "data-estado": estado, "aria-label": ESTADOS[estado] },
+      h("header", {}, h("h2", {}, ESTADOS[estado]), h("span", { class: "cuantos" }, String(suyos.length))),
+      h("div", { class: "lista-columna" }, suyos.length ? suyos.map(tarjeta) : h("p", { class: "vacio-columna" }, "Suelta aquí una tarjeta")));
+  }));
+  tablero.scrollLeft = scroll;
+}
+
+function tarjeta(e) {
+  const i = COLUMNAS.indexOf(e.estado);
+  const flecha = (destino) => destino && h("button", { type: "button", class: "mover-tarjeta", "aria-label": `Mover a ${ESTADOS[destino]}`, title: `Mover a ${ESTADOS[destino]}`,
+    onclick: () => mover(e, destino) });
+  const izquierda = flecha(COLUMNAS[i - 1]);
+  const derecha = flecha(COLUMNAS[i + 1]);
+  if (izquierda) izquierda.innerHTML = IZQUIERDA;
+  if (derecha) derecha.innerHTML = DERECHA;
+  const el = h("article", { class: `tarjeta-kanban${sinVer(e) ? " sin-ver" : ""}`, "data-id": e.id },
+    h("button", { type: "button", class: `tarjeta-encargo estado-${e.estado}`, onclick: () => { if (!acabaDeArrastrar) abrir(e); } },
       h("span", { class: "linea-1" },
-        h("strong", {}, sinVer(e) && h("span", { class: "punto-sin-ver", title: "Sin abrir" }), `${e.tipo || "Pieza"}${e.cantidad > 1 ? ` × ${e.cantidad}` : ""}`),
-        h("span", { class: `etiqueta-estado estado-${e.estado}` }, ESTADOS[e.estado] ?? e.estado)),
+        h("strong", {}, sinVer(e) && h("span", { class: "punto-sin-ver", title: "Sin abrir" }), `${e.tipo || "Pieza"}${e.cantidad > 1 ? ` × ${e.cantidad}` : ""}`)),
       h("span", { class: "linea-2" }, `${e.nombre} · ${haceCuanto(e.creado)}`, e.fotos?.length || e.tablero ? " · con adjuntos" : ""),
       preferencia(e),
       h("span", { class: "idea-corta" }, e.idea),
-      e.precio != null && h("span", { class: "linea-3" }, `${euros.format(e.precio)}${e.plazo ? ` · ${e.plazo}` : ""}`))
-  ) : [h("p", { class: "vacio" }, filtro === "pendientes" ? "No tienes encargos pendientes." : "No hay encargos aquí.")]));
+      e.precio != null && h("span", { class: "linea-3" }, `${euros.format(e.precio)}${e.plazo ? ` · ${e.plazo}` : ""}`)),
+    h("div", { class: "pie-tarjeta" }, izquierda || h("span"), derecha || h("span")));
+  prepararArrastre(el, e);
+  return el;
+}
+
+// Cambia de columna: se ve al momento y se guarda; si falla, vuelve a la suya
+async function mover(e, estado) {
+  const antes = e.estado;
+  if (antes === estado) return;
+  e.estado = estado;
+  pintar();
+  const cambios = { estado };
+  const { error } = await window.nube.cliente.from("encargos").update(cambios).eq("id", e.id);
+  if (error) {
+    e.estado = antes;
+    pintar();
+    return avisar("No se ha podido mover");
+  }
+  marcarVisto(e);
+  window.dispatchEvent(new Event("panel-cambiado"));
+  avisar(`${e.tipo || "Pieza"} de ${e.nombre}: ${ESTADOS[estado]}`, { texto: "Deshacer", alPulsar: () => mover(e, antes) });
+}
+
+// ---------- Arrastrar ----------
+// Con el ratón, en cuanto se mueve; con el dedo, tras dejarlo quieto un momento
+// (si se mueve antes, es que estás desplazándote por la página)
+let arrastre = null;
+let acabaDeArrastrar = false;
+
+function prepararArrastre(el, e) {
+  el.addEventListener("contextmenu", (ev) => ev.pointerType !== "mouse" && ev.preventDefault());
+  el.addEventListener("pointerdown", (ev) => {
+    if (ev.button !== 0 || ev.target.closest(".mover-tarjeta") || arrastre) return;
+    const inicio = { x: ev.clientX, y: ev.clientY };
+    const tactil = ev.pointerType !== "mouse";
+    let ultimo = ev;
+    const espera = tactil && setTimeout(() => empezar(), 300);
+    function empezar() {
+      clearTimeout(espera);
+      arrastre = crearArrastre(el, e, ultimo);
+      navigator.vibrate?.(15);
+    }
+    function moverPuntero(m) {
+      ultimo = m;
+      if (!arrastre) {
+        const d = Math.hypot(m.clientX - inicio.x, m.clientY - inicio.y);
+        if (tactil) { if (d > 10) acabar(); return; }
+        if (d < 6) return;
+        empezar();
+      }
+      arrastre.seguir(m);
+    }
+    function soltar() {
+      const a = arrastre;
+      acabar();
+      if (!a) return;
+      acabaDeArrastrar = true;
+      setTimeout(() => { acabaDeArrastrar = false; }, 50);
+      const destino = a.columna?.dataset.estado;
+      if (destino && destino !== e.estado) mover(e, destino);
+    }
+    function acabar() {
+      clearTimeout(espera);
+      arrastre?.quitar();
+      arrastre = null;
+      window.removeEventListener("pointermove", moverPuntero);
+      window.removeEventListener("pointerup", soltar);
+      window.removeEventListener("pointercancel", acabar);
+    }
+    window.addEventListener("pointermove", moverPuntero);
+    window.addEventListener("pointerup", soltar);
+    window.addEventListener("pointercancel", acabar);
+  });
+}
+
+// Mientras arrastras con el dedo, la página no se desplaza
+document.addEventListener("touchmove", (ev) => { if (arrastre) ev.preventDefault(); }, { passive: false });
+
+function crearArrastre(el, e, ev) {
+  const tablero = $("#tablero-encargos");
+  const caja = el.getBoundingClientRect();
+  const desfase = { x: ev.clientX - caja.left, y: ev.clientY - caja.top };
+  const fantasma = el.cloneNode(true);
+  fantasma.classList.add("fantasma");
+  fantasma.style.width = `${caja.width}px`;
+  document.body.append(fantasma);
+  el.classList.add("arrastrando");
+  tablero.classList.add("con-arrastre");
+  let punto = { x: ev.clientX, y: ev.clientY };
+  const a = { columna: null };
+  const colocar = () => {
+    fantasma.style.transform = `translate(${punto.x - desfase.x}px, ${punto.y - desfase.y}px) rotate(2deg)`;
+    const columna = document.elementFromPoint(punto.x, punto.y)?.closest(".columna-encargos") ?? columnaCercana();
+    if (columna !== a.columna) {
+      a.columna?.classList.remove("encima");
+      columna?.classList.add("encima");
+      a.columna = columna;
+    }
+  };
+  // En un hueco o en el margen del tablero: la columna más cercana
+  const columnaCercana = () => {
+    let mejor = null, distancia = Infinity;
+    for (const c of tablero.querySelectorAll(".columna-encargos")) {
+      const r = c.getBoundingClientRect();
+      const d = Math.abs(punto.x - Math.min(Math.max(punto.x, r.left), r.right));
+      if (d < distancia) { distancia = d; mejor = c; }
+    }
+    return mejor;
+  };
+  // Cerca de los bordes, el tablero y la página se desplazan solos
+  let animacion = requestAnimationFrame(function paso() {
+    const t = tablero.getBoundingClientRect();
+    const margen = Math.min(60, t.width * 0.15);
+    if (punto.x < t.left + margen) tablero.scrollLeft -= 14;
+    else if (punto.x > t.right - margen) tablero.scrollLeft += 14;
+    // arriba o abajo, solo si llevas la tarjeta hacia allí (no si ya empezaste en el borde)
+    if (punto.y < 70 && punto.y < ev.clientY - 20) window.scrollBy(0, -12);
+    else if (punto.y > innerHeight - 90 && punto.y > ev.clientY + 20) window.scrollBy(0, 12);
+    colocar();
+    animacion = requestAnimationFrame(paso);
+  });
+  colocar();
+  a.seguir = (m) => { punto = { x: m.clientX, y: m.clientY }; colocar(); };
+  a.quitar = () => {
+    cancelAnimationFrame(animacion);
+    fantasma.remove();
+    el.classList.remove("arrastrando");
+    tablero.classList.remove("con-arrastre");
+    a.columna?.classList.remove("encima");
+  };
+  return a;
 }
 
 // Nuevo y sin abrir: es lo único que cuenta en los globos del panel y del menú

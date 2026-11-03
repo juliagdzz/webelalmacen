@@ -112,3 +112,90 @@
 .prefiere-correo { background: #e0e6f0; color: #2f4a73; }
 .prefiere.grande { margin: 0 0 0.75rem; padding: 0.4rem 0.85rem 0.4rem 0.6rem; font-size: 0.9rem; }
 .prefiere.grande svg { width: 1.3rem; height: 1.3rem; }
+
+/* ---------- Encargos en tablero (kanban): una columna por estado ---------- */
+.recibidos.kanban { max-width: none; }
+.ayuda-kanban { margin: 0 0 0.5rem; font-size: 0.88rem; color: var(--verde); }
+.tablero-encargos {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 17rem;
+  align-items: start;
+  gap: 0.75rem;
+  margin: 0 -2rem 3rem;
+  padding: 0.25rem 2rem 1rem;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  scroll-padding: 0 2rem;
+}
+@media (max-width: 600px) {
+  .contenedor.recibidos.kanban { padding: 1rem; }
+  .tablero-encargos { grid-auto-columns: 85%; margin: 0 -1rem 3rem; padding: 0.25rem 1rem 1rem; scroll-snap-type: x mandatory; scroll-padding: 0 1rem; }
+}
+/* Mientras arrastras, sin imán: así se desplaza suave por los bordes */
+.tablero-encargos.con-arrastre { scroll-snap-type: none; }
+
+.columna-encargos {
+  scroll-snap-align: start;
+  min-height: 10rem;
+  padding: 0.6rem;
+  border: 2px dashed transparent;
+  border-radius: 16px;
+  background: rgb(255 255 255 / 0.5);
+  transition: background 0.15s, border-color 0.15s;
+}
+.columna-encargos.encima { border-color: var(--verde); background: #eef0de; }
+.columna-encargos header { display: flex; align-items: center; gap: 0.5rem; margin: 0.1rem 0.25rem 0.6rem; }
+.columna-encargos header::before { content: ""; width: 0.7rem; height: 0.7rem; border-radius: 50%; background: var(--oliva); }
+.columna-encargos.estado-nuevo header::before { background: var(--terracota); }
+.columna-encargos.estado-presupuestado header::before { background: #e3a86b; }
+.columna-encargos.estado-aceptado header::before, .columna-encargos.estado-en-proceso header::before { background: var(--verde); }
+.columna-encargos.estado-terminado header::before { background: var(--granate); }
+.columna-encargos.cerrada header::before { background: #c9b9ad; }
+.columna-encargos h2 { flex: 1; margin: 0; font-size: 1.05rem; }
+.columna-encargos h2::after { display: none; }
+.columna-encargos header .cuantos { padding: 0 0.5rem; border-radius: 999px; background: white; color: var(--verde); font-size: 0.8rem; font-weight: 600; }
+.lista-columna { display: grid; gap: 0.5rem; }
+.vacio-columna { margin: 0; padding: 1.25rem 0.5rem; border: 1.5px dashed #d6c7bd; border-radius: 12px; text-align: center; font-size: 0.85rem; color: #8a7a6e; }
+
+.tarjeta-kanban {
+  overflow: hidden;
+  border-radius: 14px;
+  background: white;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.08);
+  cursor: grab;
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+.tarjeta-kanban .tarjeta-encargo, .tarjeta-kanban .tarjeta-encargo:hover { border-radius: 0; box-shadow: none; padding-bottom: 0.4rem; cursor: inherit; }
+.columna-encargos.cerrada .tarjeta-kanban { opacity: 0.75; }
+.tarjeta-kanban.arrastrando { opacity: 0.35; }
+.tarjeta-kanban.fantasma {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 100;
+  margin: 0;
+  pointer-events: none;
+  cursor: grabbing;
+  box-shadow: 0 12px 30px rgb(42 26 26 / 0.3);
+}
+.pie-tarjeta { display: flex; justify-content: space-between; padding: 0 0.5rem 0.5rem calc(0.5rem + 5px); }
+.mover-tarjeta, .mover-tarjeta:hover {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border-radius: 50%;
+  background: #f3efe6;
+  color: var(--verde);
+}
+.mover-tarjeta:hover { background: var(--verde); color: var(--crema); }
+.mover-tarjeta svg { width: 1.1rem; height: 1.1rem; }
+
+/* Aviso con «Deshacer» */
+.toast.con-accion.visible { display: flex; align-items: center; gap: 0.75rem; width: max-content; padding-right: 0.5rem; pointer-events: auto; }
+.toast button, .toast button:hover { padding: 0.3rem 0.8rem; border-radius: 999px; background: var(--crema); color: var(--granate); font: 600 0.85rem 'DM Sans', sans-serif; }

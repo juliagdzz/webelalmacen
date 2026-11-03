@@ -36,13 +36,15 @@
     <a href="inventario.html"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5c3.5 4.5 6 7.8 6 10.8A6 6 0 0 1 6 14.3c0-3 2.5-6.3 6-10.8z"/></svg><span>Esmaltes</span></a>
   </nav>
 
-  <main class="contenedor encargos recibidos">
+  <main class="contenedor encargos recibidos kanban">
     <h1>Encargos recibidos</h1>
     <p id="estado-panel" class="ayuda">Un momento…</p>
 
     <div id="panel" hidden>
-      <div id="filtros" class="filtros" role="tablist" aria-label="Filtrar por estado"></div>
-      <div id="lista-encargos" class="lista-encargos"></div>
+      <p class="ayuda-kanban">Arrastra cada tarjeta a su columna (en el móvil, deja el dedo un momento sobre ella) o usa sus flechas. Tócala para abrir el encargo.</p>
+      <!-- Saltar a una columna (sobre todo en el móvil, donde se ve una a una) -->
+      <nav id="columnas-mapa" class="filtros" aria-label="Ir a una columna"></nav>
+      <div id="tablero-encargos" class="tablero-encargos"></div>
     </div>
   </main>
 
