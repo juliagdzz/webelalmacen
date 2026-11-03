@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Esmaltes del taller · El Almacén</title>
+  <title>Almacén del almacén · El Almacén</title>
   <link rel="manifest" href="manifest.webmanifest">
   <meta name="theme-color" content="#A44E26">
   <meta name="apple-mobile-web-app-title" content="El Almacén">
@@ -32,11 +32,24 @@
     <a href="encargos-recibidos.html"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5 12 4l8 5.5V19H4z"/><path d="m4 9.5 8 5.5 8-5.5"/></svg><span>Encargos</span></a>
     <a href="horneados-recibidos.html"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c1 4 5 5.5 5 10.5a5 5 0 0 1-10 0c0-2.5 1.2-4 2.5-5 .3 2 1.2 3 2.3 3.3C11 9 11.3 6 12 3z"/></svg><span>Horneados</span></a>
     <a href="talleres-admin.html"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5.5" width="16" height="14" rx="2"/><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4"/></svg><span>Talleres</span></a>
-    <a href="inventario.html" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5c3.5 4.5 6 7.8 6 10.8A6 6 0 0 1 6 14.3c0-3 2.5-6.3 6-10.8z"/></svg><span>Esmaltes</span></a>
+    <a href="inventario.html" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 3.5v17M19.5 3.5v17M4.5 10h15M4.5 16.5h15"/><rect x="7" y="5.5" width="4" height="4.5" rx=".6"/><path d="M13.5 10V7.5h3.5V10"/><circle cx="9" cy="14.3" r="1.7"/><rect x="12.5" y="12.5" width="4.5" height="4" rx=".6"/></svg><span>Almacén</span></a>
   </nav>
 
   <main class="contenedor inventario">
-    <h1>Esmaltes del taller</h1>
+    <h1>Almacén del almacén</h1>
+    <p class="ayuda">Todo lo que hay en el taller: pastas, herramientas y esmaltes. Marca de qué queda poco para acordarte de reponerlo.</p>
+
+    <div class="secciones-almacen" role="tablist" aria-label="Qué hay en el almacén">
+      <button type="button" role="tab" id="pestana-pastas" data-seccion="pastas" aria-controls="seccion-pastas" aria-selected="true"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9 12 5l8 4v6.5L12 19.5 4 15.5z"/><path d="m4 9 8 4 8-4M12 13v6.5"/></svg><span>Pastas</span><small id="n-pastas"></small></button>
+      <button type="button" role="tab" id="pestana-herramientas" data-seccion="herramientas" aria-controls="seccion-herramientas" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m4.5 19.5 8.5-8.5"/><path d="M13 11c.6-3.4 2.8-5.6 6.5-6.5-.9 3.7-3.1 5.9-6.5 6.5z"/><path d="m6.5 14.5 3 3"/></svg><span>Herramientas</span><small id="n-herramientas"></small></button>
+      <button type="button" role="tab" id="pestana-esmaltes" data-seccion="esmaltes" aria-controls="seccion-esmaltes" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5c3.5 4.5 6 7.8 6 10.8A6 6 0 0 1 6 14.3c0-3 2.5-6.3 6-10.8z"/></svg><span>Esmaltes</span><small id="n-esmaltes"></small></button>
+    </div>
+
+    <!-- Pastas y herramientas: las pinta almacen.js -->
+    <section id="seccion-pastas" class="seccion-almacen" role="tabpanel" aria-labelledby="pestana-pastas" data-tipo="pasta"></section>
+    <section id="seccion-herramientas" class="seccion-almacen" role="tabpanel" aria-labelledby="pestana-herramientas" data-tipo="herramienta" hidden></section>
+
+    <section id="seccion-esmaltes" class="seccion-almacen" role="tabpanel" aria-labelledby="pestana-esmaltes" hidden>
     <p class="ayuda">Ve tickando en el catálogo los que tienes. En «En el taller» puedes marcar de cuáles queda poco. Los alumnos lo ven en sus tableros y en sus piezas.</p>
 
     <div class="resumen-inventario" id="resumen-inventario"></div>
@@ -62,6 +75,7 @@
         <button type="submit" class="boton">Añadir</button>
       </form>
     </details>
+    </section>
   </main>
 
   <div id="aviso" class="toast" role="status" aria-live="polite"></div>
@@ -73,6 +87,7 @@
   <script src="marcas.js"></script>
   <script src="inventario-esmaltes.js"></script>
   <script src="inventario.js"></script>
+  <script src="almacen.js"></script>
   <script src="cabecera.js"></script>
 </body>
 </html>

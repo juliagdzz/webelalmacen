@@ -95,3 +95,61 @@
 .fabricante-prodesco { color: var(--terracota-oscuro); }
 .fabricante-tecniglaze { color: #2f4a73; }
 .datos-inv .marca-esmalte { vertical-align: 1px; }
+
+/* ---------- Almacén del almacén: pestañas de pastas, herramientas y esmaltes ---------- */
+.seccion-almacen[hidden] { display: none; }
+.secciones-almacen { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; margin: 0.25rem 0 1rem; }
+.secciones-almacen button, .secciones-almacen button:hover {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 0.2rem;
+  padding: 0.7rem 0.4rem 0.6rem;
+  border-radius: 14px;
+  background: white;
+  color: var(--verde);
+  font-size: 0.9rem;
+  font-weight: 500;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.08);
+}
+.secciones-almacen button:hover { box-shadow: inset 0 0 0 2px var(--verde); }
+.secciones-almacen button[aria-selected="true"] { background: var(--verde); color: var(--crema); box-shadow: none; }
+.secciones-almacen svg { width: 1.6rem; height: 1.6rem; }
+.secciones-almacen small { position: absolute; top: 0.35rem; right: 0.45rem; font-size: 0.72rem; font-weight: 600; opacity: 0.8; }
+.secciones-almacen small:empty { display: none; }
+
+.lista-almacen { margin-bottom: 1.25rem; }
+.fila-inv.estado-no { border-left-color: #8a7d76; }
+.fila-inv.estado-no .datos-inv strong { color: #8a7d76; text-decoration: line-through; }
+.fila-almacen .muestra-inv { display: grid; place-items: center; }
+.fila-almacen .sello-marca { width: 2.6rem; height: 2.6rem; }
+.icono-herramienta { display: grid; place-items: center; width: 2.6rem; height: 2.6rem; border-radius: 50%; background: #eef0de; color: var(--verde); }
+.icono-herramienta svg { width: 1.4rem; height: 1.4rem; }
+.editar-almacen, .editar-almacen:hover { padding: 0.2rem 0; border-radius: 6px; background: none; color: var(--tinta); text-align: left; }
+.editar-almacen small { white-space: normal; }
+.editor-almacen { grid-column: 1 / -1; display: grid; gap: 0.5rem; padding: 0.5rem 0 0.25rem; border-top: 1px solid #efe3d8; }
+.editor-almacen label { display: grid; gap: 0.2rem; font-size: 0.85rem; font-weight: 500; }
+.editor-almacen input { box-sizing: border-box; width: 100%; padding: 0.55rem 0.8rem; border: 1px solid #d9c3b4; border-radius: 10px; font: inherit; font-size: 1rem; font-weight: 400; }
+.botones-editor { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.5rem; }
+.quitar-almacen, .quitar-almacen:hover { padding: 0.3rem 0.4rem; background: none; color: #a3261b; font-size: 0.85rem; text-decoration: underline; }
+
+.anadir-almacen { margin-bottom: 3rem; padding: 0.9rem 1rem 1rem; border-radius: 14px; background: white; box-shadow: 0 1px 3px rgb(0 0 0 / 0.08); }
+.anadir-almacen h2 { margin: 0 0 0.6rem; font-size: 1.1rem; }
+.anadir-almacen h2::after { display: none; }
+.anadir-almacen .ayuda { margin: 0 0 0.4rem; }
+.anadir-almacen .buscar-inventario { margin: 0; font-size: 1rem; }
+.sugerencias-almacen { display: grid; gap: 0.3rem; margin: 0.5rem 0 0; padding: 0; list-style: none; }
+.sugerencias-almacen:empty { display: none; }
+.sugerencias-almacen button, .sugerencias-almacen button:hover {
+  display: flex; align-items: center; gap: 0.65rem; width: 100%; padding: 0.4rem 0.6rem 0.4rem 0.4rem;
+  border-radius: 10px; background: #faf5ef; color: var(--tinta); text-align: left;
+}
+.sugerencias-almacen button:hover { background: #eef0de; }
+.sugerencias-almacen span { display: grid; min-width: 0; line-height: 1.3; }
+.sugerencias-almacen small { color: var(--verde); font-size: 0.8rem; }
+.sugerencias-almacen .propia strong { color: var(--terracota-oscuro); }
+.chips-almacen { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-bottom: 0.8rem; }
+.chips-almacen button, .chips-almacen button:hover { padding: 0.35rem 0.75rem; border: 1.5px solid #d6c7bd; border-radius: 999px; background: white; color: var(--tinta); font-size: 0.88rem; }
+.chips-almacen button:hover { border-color: var(--verde); color: var(--verde); }
+.otra-herramienta { display: flex; gap: 0.5rem; }
+.otra-herramienta input { flex: 1; min-width: 0; }

@@ -13,12 +13,17 @@
   poner("encargos", data.encargos, "1 encargo nuevo", "N encargos nuevos", "Ningún encargo nuevo");
   poner("horneados", data.horneados, "1 horneado nuevo", "N horneados nuevos", "Ningún horneado nuevo");
   poner("avisos", data.avisos ?? 0, "1 publicación con avisos", "N publicaciones con avisos", "Sin avisos");
-  // Esmaltes del taller: cuántos hay y de cuántos queda poco
-  window.nube.cliente.from("inventario_esmaltes").select("estado").then(({ data: esmaltes }) => {
-    if (!esmaltes?.length) return;
-    const poco = esmaltes.filter((x) => x.estado === "poco").length;
-    document.getElementById("texto-inventario").textContent =
-      `${esmaltes.length === 1 ? "1 esmalte" : `${esmaltes.length} esmaltes`}${poco ? ` · queda poco de ${poco}` : ""}`;
+  // Almacén del almacén: cuántas pastas, herramientas y esmaltes hay y de cuántos queda poco
+  Promise.all([
+    window.nube.cliente.from("almacen").select("tipo,estado"),
+    window.nube.cliente.from("inventario_esmaltes").select("estado"),
+  ]).then(([{ data: cosas }, { data: esmaltes }]) => {
+    const hay = (cosas ?? []).filter((x) => x.estado !== "no");
+    const n = (lista, uno, varios) => lista.length && `${lista.length} ${lista.length === 1 ? uno : varios}`;
+    const poco = [...hay, ...(esmaltes ?? [])].filter((x) => x.estado === "poco").length;
+    const partes = [n(hay.filter((x) => x.tipo === "pasta"), "pasta", "pastas"), n(hay.filter((x) => x.tipo === "herramienta"), "herramienta", "herramientas"),
+      n(esmaltes ?? [], "esmalte", "esmaltes")].filter(Boolean);
+    if (partes.length) document.getElementById("texto-inventario").textContent = partes.join(" · ") + (poco ? ` · queda poco de ${poco}` : "");
   });
   poner("bonos", data.bonos, "1 bono o mensualidad por activar", "N bonos o mensualidades por activar",
     data.clases_hoy ? `Hoy hay ${data.clases_hoy === 1 ? "1 clase" : `${data.clases_hoy} clases`}` : "Agenda, alumnos y horarios");

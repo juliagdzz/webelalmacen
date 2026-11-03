@@ -1312,6 +1312,39 @@ create policy "Inventario: el taller lo cambia" on public.inventario_esmaltes fo
   using (public.es_admin()) with check (public.es_admin());
 
 -- ============================================================
+-- Almacén del almacén: pastas y herramientas del taller
+-- ============================================================
+-- Los esmaltes van en inventario_esmaltes; aquí, lo demás. Cada fila es una
+-- cosa que hay (o había) en el taller, con cuánto queda. Lo ve todo el mundo;
+-- solo el taller lo cambia.
+
+create table if not exists public.almacen (
+  id uuid primary key default gen_random_uuid(),
+  tipo text not null check (tipo in ('pasta', 'herramienta')),
+  nombre text not null check (length(btrim(nombre)) between 1 and 120),
+  marca text check (length(marca) <= 80),
+  ref text check (length(ref) <= 80),          -- su id en pastas.json, si es del catálogo
+  cantidad text check (length(cantidad) <= 60), -- «3 sacos de 12,5 kg», «6»…
+  estado text not null default 'hay' check (estado in ('hay', 'poco', 'no')),
+  nota text check (length(nota) <= 300),
+  actualizado timestamptz not null default now()
+);
+create index if not exists almacen_por_tipo on public.almacen (tipo, nombre);
+drop trigger if exists almacen_tocar on public.almacen;
+create trigger almacen_tocar before insert or update on public.almacen
+  for each row execute function public.registros_tocar();
+
+revoke insert, update, delete on public.almacen from anon;
+grant select on public.almacen to anon, authenticated;
+grant insert, update, delete on public.almacen to authenticated;
+alter table public.almacen enable row level security;
+drop policy if exists "Almacén: todos lo ven" on public.almacen;
+create policy "Almacén: todos lo ven" on public.almacen for select to anon, authenticated using (true);
+drop policy if exists "Almacén: el taller lo cambia" on public.almacen;
+create policy "Almacén: el taller lo cambia" on public.almacen for all to authenticated
+  using (public.es_admin()) with check (public.es_admin());
+
+-- ============================================================
 -- Tienda: las piezas a la venta
 -- ============================================================
 -- De momento es un escaparate: se ven las piezas con su precio y quien quiera
