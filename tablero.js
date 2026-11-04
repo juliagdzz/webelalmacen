@@ -1390,12 +1390,7 @@ const sinAcentos = (t) => t.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toL
 const soloLetrasYNumeros = (t) => sinAcentos(t).replace(/[^a-z0-9]/g, "");
 const nombreEsmalte = (e) => [e.codigo, e.nombre].filter(Boolean).join(" · ") || e.serie;
 
-function pedirCatalogo() {
-  return fetch("/api/esmaltes").then((r) => {
-    if (!r.ok) throw new Error();
-    return r.json();
-  });
-}
+const pedirCatalogo = () => window.catalogoEsmaltes.pedir();
 
 // El catálogo se guarda también en el móvil: la segunda vez sale al momento
 // y se actualiza por detrás para la siguiente
@@ -1408,14 +1403,10 @@ function prepararCatalogo(lista) {
 }
 function cargarCatalogo() {
   catalogo ??= (async () => {
-    let lista = null;
-    try { lista = JSON.parse(localStorage.getItem("catalogoEsmaltes")); } catch {}
-    const nueva = pedirCatalogo().then((l) => {
-      try { localStorage.setItem("catalogoEsmaltes", JSON.stringify(l)); } catch {}
-      return l;
-    });
-    // La lista guardada de antes de Tecniglaze no trae fabricante: entonces se espera a la nueva
-    const antigua = lista && !lista.some((e) => e.marca);
+    let lista = window.catalogoEsmaltes.guardada();
+    const nueva = pedirCatalogo();
+    // Si a la guardada le falta alguna marca (o es de antes de Tecniglaze), se espera a la nueva
+    const antigua = lista && !window.catalogoEsmaltes.completo(lista);
     if (lista && !antigua) {
       nueva.then((l) => { catalogo = Promise.resolve(prepararCatalogo(l)); }).catch(() => {}); // la próxima vez, la nueva
     } else {

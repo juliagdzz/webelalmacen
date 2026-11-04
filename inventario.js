@@ -39,15 +39,12 @@ const sinAcentos = (t) => String(t ?? "").normalize("NFD").replace(/[̀-ͯ]/g, "
 const nombreDe = (e) => [...new Set([e.codigo, e.nombre].filter(Boolean))].join(" · ") || e.serie || "Esmalte";
 const claveDe = (e) => window.inventarioTaller.clave(e);
 
-// El catálogo de Prodesco, el mismo que en los tableros (con copia en el móvil)
+// El catálogo de Prodesco y Tecniglaze, el mismo que en los tableros (con copia en el móvil)
 async function cargarCatalogo() {
-  try { catalogo = JSON.parse(localStorage.getItem("catalogoEsmaltes")) ?? []; } catch {}
+  catalogo = window.catalogoEsmaltes.guardada() ?? [];
   if (catalogo.length) pintar(); // la copia del móvil, mientras llega la nueva
   try {
-    const r = await fetch("/api/esmaltes");
-    if (!r.ok) throw new Error();
-    catalogo = await r.json();
-    try { localStorage.setItem("catalogoEsmaltes", JSON.stringify(catalogo)); } catch {}
+    catalogo = await window.catalogoEsmaltes.pedir();
   } catch {
     if (!catalogo.length) throw new Error("sin catálogo");
   }

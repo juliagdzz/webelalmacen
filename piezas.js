@@ -460,17 +460,10 @@ let catalogo = null;
 const prepararCatalogo = (lista) => lista;
 function cargarCatalogo() {
   catalogo ??= (async () => {
-    let lista = null;
-    try { lista = JSON.parse(localStorage.getItem("catalogoEsmaltes")); } catch {}
-    const nueva = fetch("/api/esmaltes").then((r) => {
-      if (!r.ok) throw new Error();
-      return r.json();
-    }).then((l) => {
-      try { localStorage.setItem("catalogoEsmaltes", JSON.stringify(l)); } catch {}
-      return l;
-    });
-    // La lista guardada de antes de Tecniglaze no trae fabricante: entonces se espera a la nueva
-    const antigua = lista && !lista.some((e) => e.marca);
+    let lista = window.catalogoEsmaltes.guardada();
+    const nueva = window.catalogoEsmaltes.pedir();
+    // Si a la guardada le falta alguna marca (o es de antes de Tecniglaze), se espera a la nueva
+    const antigua = lista && !window.catalogoEsmaltes.completo(lista);
     if (lista && !antigua) {
       nueva.then((l) => { catalogo = Promise.resolve(prepararCatalogo(l)); }).catch(() => {}); // la próxima vez, la nueva
     } else {

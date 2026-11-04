@@ -111,11 +111,19 @@ module.exports = async (req, res) => {
     const [prodesco, tecniglaze] = await Promise.allSettled([catalogoProdesco(), catalogoTecniglaze()]);
     if (prodesco.status === "rejected") console.error("Prodesco:", prodesco.reason);
     if (tecniglaze.status === "rejected") console.error("Tecniglaze:", tecniglaze.reason);
-    if (prodesco.status === "rejected" && tecniglaze.status === "rejected") throw prodesco.reason;
-    const esmaltes = [...(prodesco.value ?? []), ...(tecniglaze.value ?? [])];
+    // Si una tienda no responde o trae muchos menos de los normales, su copia guardada
+    // (api/_prodesco-copia.json, api/_tecniglaze-copia.json): así nunca desaparecen
+    const conCopia = (resultado, copia) => {
+      const buena = resultado.status === "fulfilled" && resultado.value.length >= copia.length * 0.8;
+      return { lista: buena ? resultado.value : copia, buena };
+    };
+    const p = conCopia(prodesco, require("./_prodesco-copia.json"));
+    const t = conCopia(tecniglaze, require("./_tecniglaze-copia.json"));
+    const esmaltes = [...p.lista, ...t.lista];
 
-    // Vercel guarda la lista un día y la renueva por detrás: solo espera la primera visita
-    res.setHeader("Cache-Control", "public, s-maxage=86400, stale-while-revalidate=604800");
+    // Vercel guarda la lista un día y la renueva por detrás: solo espera la primera visita.
+    // Si una tienda ha fallado, solo unos minutos, para volver a probar pronto
+    res.setHeader("Cache-Control", p.buena && t.buena ? "public, s-maxage=86400, stale-while-revalidate=604800" : "public, s-maxage=300");
     res.status(200).json(esmaltes);
   } catch (e) {
     console.error(e);

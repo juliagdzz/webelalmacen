@@ -2,7 +2,7 @@
   "functions": {
     "api/esmaltes.js": {
       "maxDuration": 30,
-      "includeFiles": "api/_tecniglaze-codigos.json"
+      "includeFiles": "api/{_tecniglaze-codigos,_prodesco-copia,_tecniglaze-copia}.json"
     }
   }
 }

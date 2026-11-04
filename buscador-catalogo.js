@@ -31,12 +31,10 @@
   }
   // Los esmaltes, como en los tableros: lo guardado en el móvil y, por detrás, la lista nueva
   async function cargarEsmaltes() {
-    let lista = null;
-    try { lista = JSON.parse(localStorage.getItem("catalogoEsmaltes")); } catch {}
-    const nueva = fetch("/api/esmaltes").then((r) => { if (!r.ok) throw new Error(); return r.json(); })
-      .then((l) => { try { localStorage.setItem("catalogoEsmaltes", JSON.stringify(l)); } catch {} return l; });
-    if (Array.isArray(lista) && lista.length) { nueva.catch(() => {}); return lista; }
-    return nueva.catch(() => []);
+    const lista = window.catalogoEsmaltes.guardada();
+    const nueva = window.catalogoEsmaltes.pedir();
+    if (window.catalogoEsmaltes.completo(lista)) { nueva.catch(() => {}); return lista; }
+    return nueva.catch(() => lista ?? []);
   }
 
   // Todas las palabras tienen que estar; primero lo que empieza por lo que escribes
