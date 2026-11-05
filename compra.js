@@ -29,19 +29,39 @@ function avisar(texto, accion) {
   temporizadorAviso = setTimeout(() => el.classList.remove("visible"), accion ? 5000 : 2500);
 }
 
+// Las categorías de la lista, con lo típico de cada una para añadirlo de un toque
 const TIPOS = {
-  esmalte: { titulo: "Esmaltes", uno: "esmalte" },
-  pasta: { titulo: "Pastas", uno: "pasta" },
-  herramienta: { titulo: "Herramientas", uno: "herramienta" },
-  otro: { titulo: "Otras cosas", uno: "cosa" },
+  esmalte: { titulo: "Esmaltes", rapidas: ["Esmalte transparente", "Esmalte blanco opaco", "Esmalte de interior apto para alimentos"] },
+  pasta: { titulo: "Barro y pastas", rapidas: ["Barro rojo", "Gres blanco", "Porcelana", "Barbotina para colar", "Chamota"] },
+  engobe: { titulo: "Engobes y óxidos", rapidas: ["Engobe blanco", "Óxido de hierro", "Óxido de cobalto", "Carbonato de cobre", "Rutilo", "Óxido de manganeso"] },
+  herramienta: { titulo: "Herramientas", rapidas: ["Esponjas", "Pinceles", "Alambre de corte", "Vaciadores", "Estecas de madera", "Costillas de goma",
+    "Agujas de cerámica", "Rodillo", "Pera de engobe", "Tamiz", "Calibre", "Cera de reserva", "Lija fina"] },
+  horno: { titulo: "Horno", rapidas: ["Conos pirométricos", "Placas de horno", "Estiletes", "Trípodes", "Alúmina", "Separador de placas"] },
+  otro: { titulo: "Otras cosas", rapidas: ["Bolsas para el barro", "Papel de periódico", "Film transparente", "Cajas para llevar piezas", "Mascarillas FFP2", "Guantes"] },
 };
-const HERRAMIENTAS = ["Esponjas", "Pinceles", "Alambre de corte", "Vaciadores", "Estecas de madera", "Costillas de goma", "Agujas de cerámica",
-  "Rodillo", "Pera de engobe", "Tamiz", "Calibre", "Bolsas para el barro", "Cera de reserva", "Lija fina", "Guantes", "Mascarillas FFP2"];
-const RAPIDAS = ["Esponjas", "Bolsas para el barro", "Cera de reserva", "Pinceles", "Lija fina"];
+const tipoDe = (x) => (TIPOS[x.tipo] ? x.tipo : "otro");
+// Lo escrito a mano: si es algo típico de una categoría, va a esa
+const adivinar = (texto) => Object.keys(TIPOS).find((t) => TIPOS[t].rapidas.some((n) => sinAcentos(n) === sinAcentos(texto)));
 const ICONOS = {
+  todo: '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg>',
+  esmalte: '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5c3.5 4.5 6 7.8 6 10.8A6 6 0 0 1 6 14.3c0-3 2.5-6.3 6-10.8z"/></svg>',
+  pasta: '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9 12 5l8 4v6.5L12 19.5 4 15.5z"/><path d="m4 9 8 4 8-4M12 13v6.5"/></svg>',
+  engobe: '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M7 9h10v9.5a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2z"/><path d="M8 9V6.5h8V9"/><path d="M9.5 13.5h5"/></svg>',
   herramienta: '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m4.5 19.5 8.5-8.5"/><path d="M13 11c.6-3.4 2.8-5.6 6.5-6.5-.9 3.7-3.1 5.9-6.5 6.5z"/><path d="m6.5 14.5 3 3"/></svg>',
+  horno: '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 20 12 4l2.5 16z"/><path d="M6 20h12"/></svg>',
   otro: '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8h12l-1 12H7z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></svg>',
 };
+
+// La categoría elegida arriba: filtra la lista, las sugerencias y lo rápido
+let categoria = "todo";
+try { if (TIPOS[sessionStorage.getItem("categoriaCompra")]) categoria = sessionStorage.getItem("categoriaCompra"); } catch {}
+function elegirCategoria(c) {
+  categoria = c;
+  try { sessionStorage.setItem("categoriaCompra", c); } catch {}
+  $("#nueva-cosa").placeholder = c === "todo" ? "¿Qué necesitas? Fresa, PRAI, esponjas…" : `Añadir a ${TIPOS[c].titulo.toLowerCase()}…`;
+  sugerir();
+  pintar();
+}
 
 // ---------- Catálogos para las sugerencias ----------
 let esmaltes = window.catalogoEsmaltes.guardada() ?? [];
@@ -58,22 +78,24 @@ function sugerir() {
   if (texto.length < 2) return caja.replaceChildren();
   const palabras = sinAcentos(texto).split(/\s+/);
   const encaja = (t) => palabras.every((p) => sinAcentos(t).includes(p));
+  const toca = (t) => categoria === "todo" || categoria === t;
   const opciones = [
-    ...HERRAMIENTAS.filter(encaja).slice(0, 3).map((n) => ({ tipo: "herramienta", nombre: n })),
-    ...esmaltes.filter((e) => encaja(`${e.codigo} ${e.nombre} ${e.marca} ${e.serie}`)).slice(0, 6).map(deEsmalte),
-    ...pastas.filter((p) => encaja(`${p.nombre} ${p.marca} ${p.tipo}`)).slice(0, 4).map(dePasta),
+    ...Object.entries(TIPOS).filter(([t]) => toca(t)).flatMap(([t, d]) => d.rapidas.filter(encaja).map((n) => ({ tipo: t, nombre: n }))).slice(0, 4),
+    ...(toca("esmalte") ? esmaltes.filter((e) => encaja(`${e.codigo} ${e.nombre} ${e.marca} ${e.serie}`)).slice(0, categoria === "todo" ? 6 : 10).map(deEsmalte) : []),
+    ...(toca("pasta") ? pastas.filter((p) => encaja(`${p.nombre} ${p.marca} ${p.tipo}`)).slice(0, categoria === "todo" ? 4 : 10).map(dePasta) : []),
   ];
+  const tipoPropio = categoria === "todo" ? adivinar(texto) ?? "otro" : categoria;
   caja.replaceChildren(
     ...opciones.map((o) => h("li", {}, h("button", { type: "button", class: "sugerencia", onclick: () => anadir(o) },
       icono(o), h("span", {}, h("strong", {}, o.nombre), h("small", {}, [o.marca, o.detalle].filter(Boolean).join(" · ") || TIPOS[o.tipo].titulo))))),
-    h("li", {}, h("button", { type: "button", class: "sugerencia propia", onclick: () => anadir({ tipo: "otro", nombre: texto }) },
-      icono({ tipo: "otro" }), h("span", {}, h("strong", {}, `Añadir «${texto}»`), h("small", {}, "Tal cual lo has escrito")))));
+    h("li", {}, h("button", { type: "button", class: "sugerencia propia", onclick: () => anadir({ tipo: tipoPropio, nombre: texto }) },
+      icono({ tipo: tipoPropio }), h("span", {}, h("strong", {}, `Añadir «${texto}»`), h("small", {}, `Tal cual, en ${TIPOS[tipoPropio].titulo.toLowerCase()}`)))));
 }
 
 function icono(x) {
   if (x.tipo === "esmalte" && x.miniatura) return h("img", { class: "icono-compra", src: x.miniatura, alt: "", loading: "lazy" });
-  if (x.tipo === "pasta") return window.selloMarca(x.marca || "Propia");
-  const el = h("span", { class: `icono-compra icono-${x.tipo}` });
+  if (x.tipo === "pasta" && x.marca) return window.selloMarca(x.marca);
+  const el = h("span", { class: `icono-compra icono-${tipoDe(x)}` });
   el.innerHTML = ICONOS[x.tipo] ?? ICONOS.otro;
   return el;
 }
@@ -112,7 +134,7 @@ $("#form-compra").addEventListener("submit", (e) => {
   // si lo escrito es justo una sugerencia, con sus datos; si no, tal cual
   const primera = $("#sugerencias-compra .sugerencia:not(.propia)");
   if (primera && sinAcentos(primera.querySelector("strong").textContent) === sinAcentos(texto)) primera.click();
-  else anadir({ tipo: HERRAMIENTAS.some((n) => sinAcentos(n) === sinAcentos(texto)) ? "herramienta" : "otro", nombre: texto });
+  else anadir({ tipo: categoria === "todo" ? adivinar(texto) ?? "otro" : categoria, nombre: texto });
 });
 let espera;
 $("#nueva-cosa").addEventListener("input", () => { clearTimeout(espera); espera = setTimeout(sugerir, 120); });
@@ -133,8 +155,9 @@ function fila(x) {
   if (abierta) {
     const cantidad = h("input", { type: "text", maxLength: 60, value: x.cantidad ?? "", placeholder: x.tipo === "pasta" ? "2 sacos de 12,5 kg" : x.tipo === "esmalte" ? "1 bote de 500 g" : "2" });
     const nota = h("input", { type: "text", maxLength: 200, value: x.nota ?? "", placeholder: "Para la taza de Marta, mirar si hay oferta…" });
-    li.append(h("form", { class: "editor-compra", onsubmit: (e) => { e.preventDefault(); abiertas.delete(x.id); cambiar(x.id, { cantidad: cantidad.value.trim(), nota: nota.value.trim() }); } },
-      h("label", {}, "Cuánto", cantidad), h("label", {}, "Nota", nota),
+    const tipo = h("select", {}, Object.entries(TIPOS).map(([t, d]) => h("option", { value: t, selected: tipoDe(x) === t }, d.titulo)));
+    li.append(h("form", { class: "editor-compra", onsubmit: (e) => { e.preventDefault(); abiertas.delete(x.id); cambiar(x.id, { cantidad: cantidad.value.trim(), nota: nota.value.trim(), tipo: tipo.value }); } },
+      h("label", {}, "Cuánto", cantidad), h("label", {}, "Nota", nota), h("label", {}, "Categoría", tipo),
       h("div", { class: "botones-editor" }, h("button", { type: "submit", class: "boton" }, "Guardar"),
         h("button", { type: "button", class: "quitar-compra", onclick: () => { abiertas.delete(x.id); quitar(x.id); } }, "Quitar de la lista"))));
   }
@@ -148,17 +171,30 @@ function pintar() {
   $("#resumen-compra").textContent = !lista.length
     ? "La lista está vacía. Apunta arriba lo que te falte."
     : porComprar.length ? `${porComprar.length === 1 ? "Te falta 1 cosa" : `Te faltan ${porComprar.length} cosas`}${comprado.length ? ` · ${comprado.length} en el carro` : ""}` : "¡Lo tienes todo! Ya puedes quitar lo comprado.";
-  $("#por-comprar").replaceChildren(...Object.entries(TIPOS).map(([tipo, t]) => {
-    const suyas = porComprar.filter((x) => (TIPOS[x.tipo] ? x.tipo : "otro") === tipo);
+  // Los cuadraditos de las categorías, con cuántas cosas faltan en cada una
+  $("#categorias-compra").replaceChildren(...["todo", ...Object.keys(TIPOS)].map((c) => {
+    const n = c === "todo" ? porComprar.length : porComprar.filter((x) => tipoDe(x) === c).length;
+    const b = h("button", { type: "button", role: "tab", "aria-selected": String(categoria === c), onclick: () => elegirCategoria(c) });
+    b.innerHTML = ICONOS[c];
+    b.append(h("span", {}, c === "todo" ? "Todo" : TIPOS[c].titulo), n ? h("small", {}, String(n)) : "");
+    return b;
+  }));
+  const grupos = Object.entries(TIPOS).filter(([tipo]) => categoria === "todo" || categoria === tipo).map(([tipo, t]) => {
+    const suyas = porComprar.filter((x) => tipoDe(x) === tipo);
     return suyas.length && h("section", { class: "grupo-compra" }, h("h2", {}, t.titulo, h("small", {}, ` ${suyas.length}`)), h("ul", { class: "lista-compra" }, suyas.map(fila)));
-  }).filter(Boolean));
+  }).filter(Boolean);
+  if (!grupos.length && categoria !== "todo" && lista.length) grupos.push(h("p", { class: "vacio-compra" }, `No te falta nada de ${TIPOS[categoria].titulo.toLowerCase()}. Toca abajo lo típico o escríbelo arriba.`));
+  $("#por-comprar").replaceChildren(...grupos);
   $("#comprado").hidden = !comprado.length;
   $("#n-comprado").textContent = comprado.length ? String(comprado.length) : "";
-  $("#lista-comprado").replaceChildren(...comprado.map(fila));
+  $("#lista-comprado").replaceChildren(...comprado.filter((x) => categoria === "todo" || tipoDe(x) === categoria).map(fila));
   $("#compartir-lista").hidden = !porComprar.length;
   const ya = new Set(porComprar.map((x) => sinAcentos(x.nombre)));
-  $("#rapidas").replaceChildren(...RAPIDAS.filter((n) => !ya.has(sinAcentos(n))).map((n) =>
-    h("button", { type: "button", onclick: () => anadir({ tipo: "herramienta", nombre: n }) }, `+ ${n}`)));
+  // Lo rápido: lo típico de la categoría elegida; en «Todo», un poco de cada
+  const rapidas = categoria === "todo"
+    ? Object.entries(TIPOS).flatMap(([t, d]) => d.rapidas.filter((n) => !ya.has(sinAcentos(n))).slice(0, 1).map((n) => [t, n]))
+    : TIPOS[categoria].rapidas.filter((n) => !ya.has(sinAcentos(n))).map((n) => [categoria, n]);
+  $("#rapidas").replaceChildren(...rapidas.map(([t, n]) => h("button", { type: "button", onclick: () => anadir({ tipo: t, nombre: n }) }, `+ ${n}`)));
 }
 
 $("#quitar-comprados").addEventListener("click", () => {
@@ -172,7 +208,7 @@ $("#quitar-comprados").addEventListener("click", () => {
 $("#compartir-lista").addEventListener("click", () => {
   const porComprar = window.listaCompra.leer().filter((x) => !x.comprado);
   const lineas = Object.entries(TIPOS).flatMap(([tipo, t]) => {
-    const suyas = porComprar.filter((x) => (TIPOS[x.tipo] ? x.tipo : "otro") === tipo);
+    const suyas = porComprar.filter((x) => tipoDe(x) === tipo);
     return suyas.length ? [`${t.titulo}:`, ...suyas.map((x) => `- ${x.nombre}${x.marca ? ` (${x.marca})` : ""}${x.cantidad ? `, ${x.cantidad}` : ""}${x.nota ? `. ${x.nota}` : ""}`), ""] : [];
   });
   compartir({ titulo: "Lista de la compra", texto: ["Lista de la compra · El Almacén", "", ...lineas].join("\n").trim(), avisar });
@@ -183,4 +219,4 @@ window.addEventListener("storage", (e) => { if (e.key === "listaCompra") pintar(
 window.addEventListener("nube:estado", () => pintar());
 window.addEventListener("nube:actualizado", () => pintar());
 
-pintar();
+elegirCategoria(categoria);
