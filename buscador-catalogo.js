@@ -21,19 +21,25 @@
 
   // ---------- Catálogos ----------
   let catalogos = null;
+  let pastasCargadas = null;
+  const preparar = (esmaltes, pastas) => ({
+    esmaltes: esmaltes.map((e) => ({ ...e, texto: sinAcentos(`${e.codigo} ${e.nombre} ${e.marca} ${e.serie}`) })),
+    pastas: pastas.map((p) => ({ ...p, texto: sinAcentos(`${p.nombre} ${p.marca} ${p.tipo} ${p.descripcion}`) })),
+  });
   function cargar() {
-    catalogos ??= Promise.all([cargarEsmaltes(), fetch("pastas.json").then((r) => r.json()).catch(() => [])])
-      .then(([esmaltes, pastas]) => ({
-        esmaltes: esmaltes.map((e) => ({ ...e, texto: sinAcentos(`${e.codigo} ${e.nombre} ${e.marca} ${e.serie}`) })),
-        pastas: pastas.map((p) => ({ ...p, texto: sinAcentos(`${p.nombre} ${p.marca} ${p.tipo} ${p.descripcion}`) })),
-      }));
+    pastasCargadas ??= fetch("pastas.json").then((r) => r.json()).catch(() => []);
+    catalogos ??= Promise.all([cargarEsmaltes(), pastasCargadas]).then(([esmaltes, pastas]) => preparar(esmaltes, pastas));
     return catalogos;
   }
   // Los esmaltes, como en los tableros: lo guardado en el móvil y, por detrás, la lista nueva
   async function cargarEsmaltes() {
     const lista = window.catalogoEsmaltes.guardada();
     const nueva = window.catalogoEsmaltes.pedir();
-    if (window.catalogoEsmaltes.completo(lista)) { nueva.catch(() => {}); return lista; }
+    if (window.catalogoEsmaltes.completo(lista)) {
+      // cuando llegue la nueva, se busca otra vez con ella
+      nueva.then(async (l) => { catalogos = Promise.resolve(preparar(l, await pastasCargadas)); pintar(); }).catch(() => {});
+      return lista;
+    }
     return nueva.catch(() => lista ?? []);
   }
 

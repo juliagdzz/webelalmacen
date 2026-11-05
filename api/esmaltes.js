@@ -123,7 +123,8 @@ module.exports = async (req, res) => {
 
     // Vercel guarda la lista un día y la renueva por detrás: solo espera la primera visita.
     // Si una tienda ha fallado, solo unos minutos, para volver a probar pronto
-    res.setHeader("Cache-Control", p.buena && t.buena ? "public, s-maxage=86400, stale-while-revalidate=604800" : "public, s-maxage=300");
+    // (max-age=0: el navegador pregunta siempre; la que responde rápido es la copia de Vercel)
+    res.setHeader("Cache-Control", p.buena && t.buena ? "public, max-age=0, s-maxage=86400, stale-while-revalidate=604800" : "public, max-age=0, s-maxage=300");
     res.status(200).json(esmaltes);
   } catch (e) {
     console.error(e);
