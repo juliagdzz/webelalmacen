@@ -1,0 +1,123 @@
+/* Lista de la compra */
+
+.compra [hidden] { display: none !important; }
+@media (max-width: 600px) {
+  .contenedor.compra { padding: 1rem; }
+}
+.titulo-compra { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.titulo-compra h1 { margin-bottom: 0.25rem; }
+.titulo-compra .boton { flex: none; padding: 0.45rem 1rem; font-size: 0.9rem; }
+.entradilla { margin-top: 0; }
+
+.boton.texto, .boton.texto:hover { padding: 0.3rem 0.5rem; background: none; color: var(--verde); font-size: 0.88rem; text-decoration: underline; }
+
+/* Añadir */
+.anadir-compra { margin: 1rem 0; padding: 0.8rem; border-radius: 14px; background: white; box-shadow: 0 1px 3px rgb(0 0 0 / 0.08); }
+.campo-compra { display: flex; gap: 0.5rem; }
+.campo-compra input {
+  flex: 1;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 0.65rem 0.9rem;
+  border: 2px solid var(--verde);
+  border-radius: 999px;
+  background: white;
+  color: var(--tinta);
+  font: inherit;
+  font-size: 1rem; /* sin zoom en iPhone */
+}
+.campo-compra input:focus { outline: none; box-shadow: 0 0 0 3px rgb(74 90 35 / 0.2); }
+.campo-compra input::-webkit-search-cancel-button { display: none; }
+.sugerencias-compra { display: grid; gap: 0.3rem; margin: 0.5rem 0 0; padding: 0; list-style: none; }
+.sugerencias-compra:empty { display: none; }
+.sugerencia, .sugerencia:hover {
+  display: flex; align-items: center; gap: 0.65rem; width: 100%; padding: 0.4rem 0.6rem 0.4rem 0.4rem;
+  border-radius: 10px; background: #faf5ef; color: var(--tinta); text-align: left;
+}
+.sugerencia:hover { background: #eef0de; }
+.sugerencia > span { display: grid; min-width: 0; line-height: 1.3; }
+.sugerencia small { color: var(--verde); font-size: 0.8rem; overflow-wrap: anywhere; }
+.sugerencia.propia strong { color: var(--terracota-oscuro); }
+.rapidas { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.6rem; }
+.rapidas:empty { display: none; }
+.rapidas button, .rapidas button:hover { padding: 0.3rem 0.7rem; border: 1.5px solid #d6c7bd; border-radius: 999px; background: white; color: var(--verde); font-size: 0.85rem; }
+.rapidas button:hover { border-color: var(--verde); }
+
+.resumen-compra { margin: 0.5rem 0; font-weight: 600; color: var(--granate); }
+
+/* Lista */
+.grupo-compra { margin: 1rem 0; }
+.grupo-compra h2, .comprado h2 { margin: 0 0 0.4rem; font-size: 1.05rem; color: var(--terracota-oscuro); }
+.grupo-compra h2::after, .comprado h2::after { display: none; }
+.grupo-compra h2 small, .comprado h2 small { font-family: 'DM Sans', sans-serif; font-weight: 400; font-size: 0.85rem; color: #6b5a4a; }
+.lista-compra { display: grid; gap: 0.4rem; margin: 0; padding: 0; list-style: none; }
+.cosa-compra {
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0.6rem;
+  border-radius: 12px;
+  background: white;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.06);
+}
+.marcar, .marcar:hover {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border-radius: 50%;
+  background: white;
+  box-shadow: inset 0 0 0 2px var(--verde);
+  color: transparent;
+  font-size: 1rem;
+  font-weight: 700;
+}
+.marcar:hover { color: rgb(74 90 35 / 0.4); }
+.marcar[aria-checked="true"] { background: var(--verde); color: var(--crema); box-shadow: none; }
+.icono-compra, .cosa-compra .sello-marca, .sugerencia .sello-marca { flex: none; width: 2.4rem; height: 2.4rem; }
+img.icono-compra { border-radius: 50%; object-fit: cover; background: #e8dcc6; }
+.icono-herramienta, .icono-otro { display: grid; place-items: center; border-radius: 50%; background: #eef0de; color: var(--verde); }
+.icono-otro { background: #f6e1c9; color: var(--terracota-oscuro); }
+.icono-compra svg { width: 1.3rem; height: 1.3rem; }
+.datos-compra, .datos-compra:hover { display: grid; min-width: 0; padding: 0.15rem 0; border-radius: 6px; background: none; color: var(--tinta); text-align: left; line-height: 1.3; }
+.datos-compra strong { font-weight: 600; overflow-wrap: anywhere; }
+.datos-compra .cantidad { font-weight: 500; color: var(--terracota-oscuro); }
+.datos-compra small { color: var(--verde); font-size: 0.8rem; overflow-wrap: anywhere; }
+.datos-compra small:empty { display: none; }
+.tienda-compra { display: grid; place-items: center; width: 2rem; height: 2rem; border-radius: 50%; background: #f3efe6; color: var(--verde); text-decoration: none; font-weight: 600; }
+.contenedor a.tienda-compra { color: var(--verde); }
+.cosa-compra.comprada { opacity: 0.65; }
+.cosa-compra.comprada .datos-compra strong { text-decoration: line-through; }
+
+.editor-compra { grid-column: 1 / -1; display: grid; gap: 0.5rem; padding-top: 0.5rem; border-top: 1px solid #efe3d8; }
+.editor-compra label { display: grid; gap: 0.2rem; font-size: 0.85rem; font-weight: 500; }
+.editor-compra input { box-sizing: border-box; width: 100%; padding: 0.55rem 0.8rem; border: 1px solid #d9c3b4; border-radius: 10px; font: inherit; font-size: 1rem; font-weight: 400; }
+.botones-editor { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.5rem; }
+.quitar-compra, .quitar-compra:hover { padding: 0.3rem 0.4rem; background: none; color: #a3261b; font-size: 0.85rem; text-decoration: underline; }
+
+.comprado { margin: 1.5rem 0 3rem; }
+.cabeza-comprado { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
+
+/* Aviso, con «Deshacer» */
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: calc(2rem + var(--alto-sello, 0px) + env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  z-index: 60;
+  max-width: calc(100% - 2rem);
+  padding: 0.6rem 1rem;
+  border-radius: 999px;
+  background: var(--verde);
+  color: var(--crema);
+  font-size: 0.9rem;
+  text-align: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+}
+.toast.visible { opacity: 1; }
+.toast.con-accion.visible { display: flex; align-items: center; gap: 0.75rem; width: max-content; padding-right: 0.5rem; pointer-events: auto; }
+.toast button, .toast button:hover { padding: 0.3rem 0.8rem; border-radius: 999px; background: var(--crema); color: var(--granate); font: 600 0.85rem 'DM Sans', sans-serif; }

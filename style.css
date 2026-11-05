@@ -225,9 +225,16 @@ button:hover, .boton:hover { background: var(--terracota-oscuro); }
   .subnav-iconos:has(> a:nth-child(5)) { gap: 0.4rem; padding-inline: 0.75rem; }
   .subnav-iconos:has(> a:nth-child(5)) a { font-size: 0.66rem; padding-inline: 0.1rem; }
 }
+/* Con seis (Mis creaciones), aún más justos */
+@media (max-width: 480px) {
+  .subnav-iconos:has(> a:nth-child(6)) { gap: 0.3rem; padding-inline: 0.5rem; }
+  .subnav-iconos:has(> a:nth-child(6)) a { font-size: 0.6rem; }
+}
 @media (max-width: 380px) {
   .subnav.subnav-iconos { gap: 0.35rem; padding-inline: 0.5rem; }
   .subnav-iconos:has(> a:nth-child(5)) a { font-size: 0.6rem; }
+  .subnav-iconos:has(> a:nth-child(6)) { gap: 0.25rem; padding-inline: 0.4rem; }
+  .subnav-iconos:has(> a:nth-child(6)) a { font-size: 0.56rem; }
   .subnav-iconos svg { width: 1.4rem; height: 1.4rem; }
 }
 .subnav-iconos a.subnav-inicio { background: transparent; box-shadow: inset 0 0 0 1.5px rgb(143 66 32 / 0.35); color: var(--terracota-oscuro); }

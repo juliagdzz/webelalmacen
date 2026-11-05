@@ -152,6 +152,8 @@
   transition: transform 0.15s;
 }
 .enlace-idea:hover { transform: translateY(-2px); }
+.contenedor a.enlace-idea + a.enlace-idea { margin-top: -2.25rem; }
+.contenedor a.enlace-compra { background: var(--verde); }
 .enlace-idea svg { flex: none; width: 2.2rem; height: 2.2rem; }
 .enlace-idea > span:nth-of-type(1) { flex: 1; display: grid; line-height: 1.3; }
 .enlace-idea strong { font-family: 'Fraunces', serif; font-size: 1.1rem; }

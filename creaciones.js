@@ -35,6 +35,8 @@ function escribir(id, n, uno, varios) {
 }
 
 function pintarCuentas() {
+  const faltan = window.listaCompra?.pendientes() ?? 0;
+  if (faltan) document.getElementById("cuenta-compra").textContent = faltan === 1 ? "Te falta 1 cosa" : `Te faltan ${faltan} cosas`;
   contar("elalmacen", ["tableros"]).then((c) => c && escribir("cuenta-tableros", c.tableros, "tablero", "tableros")).catch(() => {});
   contar("elalmacen-piezas", ["piezas", "recetas"]).then((c) => {
     if (!c) return;

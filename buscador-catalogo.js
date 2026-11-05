@@ -87,6 +87,14 @@
   // ---------- Fichas ----------
   const num = (n) => Number(n).toLocaleString("es-ES");
   const dato = (nombre, valor) => (valor || valor === 0 ? [h("dt", {}, nombre), h("dd", {}, String(valor))] : []);
+  // «Añadir a la lista de la compra» (lista-compra-datos.js)
+  const aLaLista = (cosa) => window.listaCompra && h("button", { type: "button", class: "boton a-la-lista", onclick: (ev) => {
+    const nueva = window.listaCompra.anadir(cosa);
+    ev.currentTarget.textContent = nueva ? "En la lista de la compra ✓" : "Ya estaba en la lista ✓";
+    ev.currentTarget.disabled = true;
+    const faltan = window.listaCompra.pendientes();
+    document.getElementById("cuenta-compra").textContent = faltan === 1 ? "Te falta 1 cosa" : `Te faltan ${faltan} cosas`;
+  } }, "Añadir a la lista de la compra");
   const enlaceTienda = (url, marca) => url && h("a", { class: "boton secundario", href: url, target: "_blank", rel: "noopener" }, `Ver en ${marca} ↗`);
 
   function abrirFicha(...contenido) {
@@ -101,7 +109,9 @@
       h("h2", { id: "titulo-ficha-catalogo" }, e.nombre),
       h("dl", { class: "datos-ficha" }, ...dato("Marca", e.marca), ...dato("Serie", e.serie), ...dato("Código", e.codigo)),
       e.plomo && h("p", { class: "nota-plomo" }, "Lleva plomo: no lo uses en piezas para comer o beber."),
-      h("div", { class: "acciones-ficha" }, enlaceTienda(e.url, e.marca)));
+      h("div", { class: "acciones-ficha" },
+        aLaLista({ tipo: "esmalte", nombre: [e.codigo, e.nombre].filter(Boolean).join(" "), marca: e.marca, detalle: e.serie, url: e.url, miniatura: e.miniatura }),
+        enlaceTienda(e.url, e.marca)));
   }
 
   function fichaPasta(p) {
@@ -120,6 +130,7 @@
         ...dato("Porosidad", p.porosidad != null ? `${num(p.porosidad)} %` : null),
         ...dato("Dónde comprarla", p.tienda && p.tienda !== p.marca ? p.tienda : null)),
       h("div", { class: "acciones-ficha" },
+        aLaLista({ tipo: "pasta", nombre: p.nombre, marca: p.marca ?? "SIO-2", detalle: [p.tipo, p.coccion].filter(Boolean).join(" · "), url: p.url }),
         calcula && h("a", { class: "boton", href: `medidas.html?pasta=${encodeURIComponent(p.id)}` }, "Calcular medidas con esta pasta"),
         enlaceTienda(p.url, p.tienda || p.marca)));
   }

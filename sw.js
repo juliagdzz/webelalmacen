@@ -1,6 +1,6 @@
 // Service worker mínimo: permite instalar la web en el móvil
 // y que funcione sin conexión con lo último que se cargó.
-const CACHE = "almacen-v27";
+const CACHE = "almacen-v28";
 
 self.addEventListener("install", () => self.skipWaiting());
 self.addEventListener("activate", (e) => e.waitUntil(

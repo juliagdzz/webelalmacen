@@ -8,7 +8,7 @@
   const activa = Boolean(CONFIG.url && CONFIG.clave && window.supabase);
   const CLAVE_SESION = "almacen-sesion";
   // Las páginas de Mis creaciones piden elegir cuenta o invitado
-  const PRIVADA = /\/(creaciones|inspiracion|piezas|medidas|perfil)(\.html)?$/.test(location.pathname);
+  const PRIVADA = /\/(creaciones|inspiracion|piezas|medidas|perfil|compra)(\.html)?$/.test(location.pathname);
   // La comunidad es solo para cuentas: el modo invitado no vale
   const SOLO_CUENTA = /\/comunidad(\.html)?$/.test(location.pathname);
 
@@ -60,7 +60,7 @@
     },
   };
   // Ajustes de localStorage que también viajan con la cuenta
-  const AJUSTES = ["seriesFavoritas", "listasPropias", "medidas"];
+  const AJUSTES = ["seriesFavoritas", "listasPropias", "medidas", "listaCompra"];
 
   const abiertas = {};
   function abrir(base) {
