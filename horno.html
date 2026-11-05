@@ -28,7 +28,10 @@
 
   <main class="contenedor horno">
     <h1>Servicio de horneado</h1>
-    <p class="entradilla">¿Haces cerámica en casa y no tienes horno? Trae tus piezas bien secas y las cocemos en el nuestro. Pagas solo el espacio que ocupan.</p>
+    <p class="entradilla">¿Haces cerámica en casa y no tienes horno? Trae tus piezas y las cocemos en el nuestro. Pagas solo el espacio que ocupan.</p>
+
+    <!-- Lo más importante antes de traerlas -->
+    <p class="aviso-seco"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"/></svg><span><strong>Las piezas tienen que estar completamente secas.</strong> Si queda humedad dentro, el vapor puede romperlas en el horno (y a las de al lado). Al tacto no tienen que estar frías; si dudas, déjalas unos días más.</span></p>
 
     <!-- El horno: se abre, entra la pieza, se cierra y sube la temperatura -->
     <figure class="escena-horno">
@@ -122,6 +125,21 @@
         <input id="tripode" type="checkbox">
         <span><strong>Necesita trípode</strong><small id="texto-tripode"></small></span>
       </label>
+      <!-- En esmaltado: con qué pasta y qué esmaltes, para comprobar que aguantan la cocción -->
+      <div id="caja-materiales" class="materiales" hidden>
+        <label class="campo-horno">¿Qué pasta has usado? <small>opcional</small>
+          <input id="pasta-usada" type="text" list="lista-pastas" maxlength="120" autocomplete="off" placeholder="Escribe: PRAI, Europa, gres blanco…"></label>
+        <p id="aviso-pasta" class="aviso-temperatura" hidden></p>
+        <label class="campo-horno" for="esmalte-usado">¿Y qué esmaltes? <small>opcional, puedes poner varios</small></label>
+        <div id="esmaltes-usados" class="esmaltes-usados"></div>
+        <div class="fila-esmalte">
+          <input id="esmalte-usado" type="text" list="lista-esmaltes" maxlength="120" autocomplete="off" placeholder="Escribe: Fresa, 5546, Moss green…" aria-label="Añadir un esmalte">
+          <button id="anadir-esmalte" type="button" class="secundario">Añadir</button>
+        </div>
+        <p class="ayuda-materiales">Así comprobamos que la pasta y los esmaltes aguantan la temperatura de la cocción. Si no lo sabes, déjalo en blanco y lo vemos contigo.</p>
+        <datalist id="lista-pastas"></datalist>
+        <datalist id="lista-esmaltes"></datalist>
+      </div>
     </section>
 
     <section class="bloque">
@@ -157,7 +175,7 @@
     </section>
 
     <p id="texto-util" class="nota-horno"></p>
-    <p class="nota-horno">Precio orientativo. Las piezas tienen que venir bien secas. Si una pieza es muy grande o tiene una forma rara, la miramos contigo antes de meterla.</p>
+    <p class="nota-horno">Precio orientativo. Las piezas tienen que venir completamente secas. Si una pieza es muy grande o tiene una forma rara, la miramos contigo antes de meterla.</p>
   </main>
 
   <!-- Enviar el presupuesto al taller -->
@@ -165,6 +183,7 @@
     <form id="form-enviar" class="form-horno" novalidate>
       <h2>Enviar al taller</h2>
       <p id="resumen-envio" class="ayuda-horno"></p>
+      <p class="aviso-seco pequeno"><strong>Recuerda:</strong>&nbsp;tráelas completamente secas.</p>
       <label class="campo-horno">Tu nombre <input id="e-nombre" type="text" maxlength="120" autocomplete="given-name" placeholder="Solo tu nombre, sin apellidos" required></label>
       <label class="campo-horno">Teléfono o WhatsApp <input id="e-telefono" type="tel" maxlength="40" autocomplete="tel"></label>
       <label class="campo-horno">Correo <small>opcional</small><input id="e-correo" type="email" maxlength="200" autocomplete="email"></label>
@@ -200,6 +219,7 @@
   <script src="nube.js"></script>
   <script src="horno-tarifas.js"></script>
   <script src="compartir.js"></script>
+  <script src="catalogo-esmaltes.js"></script>
   <script src="horno.js"></script>
   <script src="cabecera.js"></script>
 </body>

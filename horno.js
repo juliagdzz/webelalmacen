@@ -39,6 +39,71 @@ function litrosUtiles() {
   return TARIFAS.horno.litros * (1 - TARIFAS.horno.placasYPatas) * (1 - TARIFAS.horno.noAprovechable);
 }
 
+// ---------- Pasta y esmaltes (en esmaltado) ----------
+
+let pastas = [];
+let esmaltesUsados = [];
+const nombrePasta = (p) => `${p.nombre} (${p.marca ?? "SIO-2"})`;
+const nombreEsmalte = (e) => `${[e.codigo, e.nombre].filter(Boolean).join(" ")} (${e.marca})`;
+const opcion = (texto) => { const o = document.createElement("option"); o.value = texto; return o; };
+
+fetch("pastas.json").then((r) => r.json()).then((lista) => {
+  pastas = lista;
+  $("#lista-pastas").replaceChildren(...lista.map((p) => opcion(nombrePasta(p))));
+  pintar();
+}).catch(() => {});
+{
+  const ponerEsmaltes = (lista) => $("#lista-esmaltes").replaceChildren(...[...new Set(lista.map(nombreEsmalte))].map(opcion));
+  const guardada = window.catalogoEsmaltes.guardada();
+  if (Array.isArray(guardada)) ponerEsmaltes(guardada);
+  window.catalogoEsmaltes.pedir().then(ponerEsmaltes).catch(() => {});
+}
+
+function pintarEsmaltes() {
+  $("#esmaltes-usados").replaceChildren(...esmaltesUsados.map((nombre, i) => {
+    const chip = document.createElement("span");
+    chip.className = "esmalte-usado";
+    chip.textContent = nombre;
+    const quitar = document.createElement("button");
+    quitar.type = "button";
+    quitar.textContent = "✕";
+    quitar.setAttribute("aria-label", `Quitar ${nombre}`);
+    quitar.addEventListener("click", () => { esmaltesUsados.splice(i, 1); pintarEsmaltes(); });
+    chip.append(quitar);
+    return chip;
+  }));
+}
+function anadirEsmalte() {
+  const nombre = $("#esmalte-usado").value.trim();
+  if (nombre && !esmaltesUsados.includes(nombre)) esmaltesUsados.push(nombre);
+  $("#esmalte-usado").value = "";
+  pintarEsmaltes();
+}
+$("#anadir-esmalte").addEventListener("click", anadirEsmalte);
+$("#esmalte-usado").addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); anadirEsmalte(); } });
+// Al elegir uno de la lista de sugerencias se añade solo
+$("#esmalte-usado").addEventListener("input", (e) => {
+  if (e.inputType === "insertReplacementText" || !e.inputType) {
+    if ([...$("#lista-esmaltes").options].some((o) => o.value === e.target.value)) anadirEsmalte();
+  }
+});
+
+// Si la pasta es del catálogo y su temperatura no encaja con la cocción, se avisa
+function avisoPasta() {
+  const escrita = $("#pasta-usada").value.trim().toLowerCase();
+  const elegida = pastas.find((p) => nombrePasta(p).toLowerCase() === escrita) ?? pastas.find((p) => p.nombre.toLowerCase() === escrita);
+  const numeros = elegida?.coccion?.match(/\d{3,4}/g)?.map(Number);
+  const temperatura = TARIFAS.coccion[elegido("coccion")].temperatura;
+  const aviso = $("#aviso-pasta");
+  aviso.hidden = true;
+  if (!numeros?.length) return;
+  const [min, max] = [Math.min(...numeros), Math.max(...numeros)];
+  if (temperatura > max + 10) aviso.textContent = `Ojo: ${elegida.nombre} es para ${elegida.coccion} y esta cocción llega a ${temperatura} ºC. Se puede deformar o fundir: mejor elige la otra cocción o pregúntanos.`;
+  else if (temperatura < min - 60) aviso.textContent = `Ojo: ${elegida.nombre} es para ${elegida.coccion} y esta cocción llega solo a ${temperatura} ºC: quedaría poco cocida.`;
+  else return;
+  aviso.hidden = false;
+}
+
 function calcular() {
   const coccion = TARIFAS.coccion[elegido("coccion")];
   const tipo = elegido("tipo");
@@ -65,7 +130,9 @@ function calcular() {
   const redondear = (n) => Math.ceil(n / TARIFAS.redondeo - 1e-9) * TARIFAS.redondeo;
   const unidad = redondear(Math.max(TARIFAS.minimo, porEspacio) + (tripode ? TARIFAS.tripode.precio : 0));
 
-  return { coccion, tipo, redonda, tripode, alto, ancho, fondo, cantidad, litros, parte, unidad, total: unidad * cantidad,
+  const pasta = tipo === "esmaltado" ? $("#pasta-usada").value.trim() : "";
+  const esmaltes = tipo === "esmaltado" ? [...esmaltesUsados] : [];
+  return { coccion, tipo, redonda, tripode, alto, ancho, fondo, cantidad, litros, parte, unidad, total: unidad * cantidad, pasta, esmaltes,
     minimo: porEspacio < TARIFAS.minimo, cabe: parte * cantidad <= 1 };
 }
 
@@ -73,6 +140,8 @@ function pintar() {
   const tipo = elegido("tipo");
   const redonda = elegido("forma") === "redonda";
   $("#caja-tripode").hidden = tipo !== "esmaltado";
+  $("#caja-materiales").hidden = tipo !== "esmaltado";
+  avisoPasta();
   $("#caja-fondo").hidden = redonda;
   $("#etiqueta-ancho").textContent = redonda ? "Diámetro" : "Ancho";
   document.documentElement.style.setProperty("--fuego", colorFuego());
@@ -102,7 +171,13 @@ function guardarPresupuesto() {
   try { localStorage.setItem("presupuestoHorno", JSON.stringify(presupuesto)); } catch {}
 }
 
-const describir = (p) => `${p.cantidad > 1 ? `${p.cantidad} piezas` : "1 pieza"} de ${numero.format(p.alto)} × ${numero.format(p.ancho)}${p.redonda ? " ⌀" : ` × ${numero.format(p.fondo)}`} cm · ${p.tipo}${p.tripode ? " con trípode" : ""} · ${p.coccion.toLowerCase()}`;
+const describir = (p) => [
+  `${p.cantidad > 1 ? `${p.cantidad} piezas` : "1 pieza"} de ${numero.format(p.alto)} × ${numero.format(p.ancho)}${p.redonda ? " ⌀" : ` × ${numero.format(p.fondo)}`} cm`,
+  `${p.tipo}${p.tripode ? " con trípode" : ""}`,
+  p.coccion.toLowerCase(),
+  p.pasta && `pasta: ${p.pasta}`,
+  p.esmaltes?.length && `esmaltes: ${p.esmaltes.join(", ")}`,
+].filter(Boolean).join(" · ");
 
 function pintarPresupuesto() {
   $("#presupuesto").hidden = !presupuesto.length;
@@ -126,6 +201,8 @@ function pintarPresupuesto() {
 
 $("#anadir-lista").addEventListener("click", () => {
   const r = calcular();
+  // lo que se haya escrito en el campo de esmaltes sin pulsar «Añadir», también cuenta
+  if ($("#esmalte-usado").value.trim() && r.tipo === "esmaltado") { anadirEsmalte(); r.esmaltes = [...esmaltesUsados]; }
   presupuesto.push({ ...r, coccion: r.coccion.nombre });
   guardarPresupuesto();
   pintarPresupuesto();
@@ -270,6 +347,7 @@ function animarHorno() {
 
 document.querySelectorAll("input").forEach((el) => el.addEventListener("input", pintar));
 document.querySelectorAll('input[name="coccion"]').forEach((el) => el.addEventListener("change", () => {
+  avisoPasta();
   // si ya está cociendo, la pantalla pasa a la nueva temperatura
   if (document.querySelector(".escena-horno").classList.contains("cociendo")) pintarFotograma(10);
 }));

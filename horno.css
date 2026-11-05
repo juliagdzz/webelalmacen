@@ -166,3 +166,25 @@
 .fila-recoger .campo-horno { margin-bottom: 0.3rem; }
 .ayuda-recoger { margin: 0 0 0.8rem; font-size: 0.8rem; color: var(--verde); line-height: 1.4; }
 @media (max-width: 360px) { .fila-recoger { grid-template-columns: 1fr; } }
+
+/* Aviso: las piezas, completamente secas */
+.aviso-seco { display: flex; gap: 0.7rem; align-items: flex-start; margin: 0 0 1rem; padding: 0.8rem 1rem; border-left: 4px solid var(--terracota); border-radius: 12px; background: #fbefe3; color: var(--terracota-oscuro); font-size: 0.95rem; line-height: 1.45; }
+.aviso-seco svg { flex: none; width: 1.6rem; height: 1.6rem; margin-top: 0.05rem; }
+.aviso-seco strong { color: var(--granate); }
+.aviso-seco.pequeno { padding: 0.5rem 0.8rem; font-size: 0.88rem; }
+
+/* Pasta y esmaltes usados (en esmaltado) */
+.materiales[hidden] { display: none; }
+.materiales { margin-top: 1rem; padding-top: 0.9rem; border-top: 1px solid #efe3d8; }
+.materiales .campo-horno { margin-bottom: 0.4rem; }
+.fila-esmalte { display: flex; gap: 0.5rem; }
+.fila-esmalte input { flex: 1; min-width: 0; box-sizing: border-box; padding: 0.6rem 0.8rem; border: 1px solid #d9c3b4; border-radius: 10px; background: white; font: inherit; font-size: 1rem; }
+.fila-esmalte input:focus { outline: 2px solid var(--verde-claro); outline-offset: 1px; }
+.esmaltes-usados { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-bottom: 0.4rem; }
+.esmaltes-usados:empty { display: none; }
+.esmalte-usado { display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.2rem 0.3rem 0.2rem 0.7rem; border-radius: 999px; background: #eef0de; color: var(--oliva-oscuro); font-size: 0.88rem; font-weight: 500; }
+.esmalte-usado button, .esmalte-usado button:hover { width: 1.6rem; height: 1.6rem; padding: 0; border-radius: 50%; background: none; color: var(--oliva-oscuro); font-size: 0.8rem; }
+.esmalte-usado button:hover { background: rgb(74 90 35 / 0.15); }
+.ayuda-materiales { margin: 0.5rem 0 0; font-size: 0.82rem; color: var(--verde); line-height: 1.4; }
+.aviso-temperatura { margin: 0 0 0.6rem; padding: 0.5rem 0.75rem; border-radius: 10px; background: #f3e3e3; color: var(--granate); font-size: 0.85rem; line-height: 1.4; }
+.aviso-temperatura[hidden] { display: none; }
